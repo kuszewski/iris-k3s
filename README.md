@@ -16,12 +16,12 @@ k3d is a wrapper around k3s to enable running k3s on your desktop in Docker.  ht
 
 ### Pre-requisites
 
-Before you install k3d, you'll need to install docker and the kubernetes control tool, kubectl.  For MacOS users, installation is easier if you have brew installed (https://brew.sh/).  For Windows users, chocolaty is similarly helpful (https://chocolatey.org/).
+Before you install k3d, you'll need to install docker and the kubernetes control tool, kubectl.  For MacOS users, installation is easier if you have brew installed (https://brew.sh/).  For Windows users, chocolatey is similarly helpful (https://chocolatey.org/).  So, please make sure you have those tools installed.
 
 Kubernetes, like many systems, is command-line oriented, so you'll want to have your shell handy.
 
 1. Install Docker. If you don't have it already, you can get it from here  https://www.docker.com/products/docker-desktop
-2. Install kubectl. If you haven't used kubernetes yet, you probably don't have kubectl installed on your machine.  Here are the full instructions:  https://kubernetes.io/docs/tasks/tools/install-kubectl/
+2. Install kubectl. If you haven't used kubernetes yet, you probably don't have kubectl installed on your machine.  Follow the full instructions here:  https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 ### Installing k3d
 
@@ -47,7 +47,7 @@ Now that we have a kubernetes cluster, let's install IKO!
 Helm can be thought of as a package manager for Kubernetes.  You can read more about how to install it at https://helm.sh/docs/intro/install/
 
 * On MacOs: Use brew, `brew install helm`
-* On Windows: Use chocolaty, `choco install kubernetes-helm`
+* On Windows: Use chocolatey, `choco install kubernetes-helm`
 
 ### Create kubernetes secret for access to containers.intersystems.com
 
@@ -112,6 +112,8 @@ When using containers, IRIS is configured via the configuration parameter files.
 
 `kubectl create cm iris-cpf --from-file data.cpf --from-file compute.cpf`
 
+To learn more about CPF, check out the IRIS documentation at: https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RACS_CPF
+
 ### Create storage class
 
 Kubernetes allows for working with many different storage subsystems through the concept of a storageClass.  Let's add a storage class that will just pull files from your local machine.
@@ -125,11 +127,13 @@ In the IKO samples directory, we have several other example storageClass (sc) fi
 
 Let's start with a very simple, one node, IRIS instance.  If you look at `irisCluster-basic.yaml`, it creates an IRIS instance with just one data node and with the default system password.  The full instructions that describe this yaml file and how to change the password are included in https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=AIKO
 
+
+Create an IRIS cluster named `iris-demo-basic` with the following command:
 `kubectl apply -f irisCluster-basic.yaml`
 
 ### Ensuring the cluster started properly
 
-You can check on the status of the whole cluster,  It typically takes a couple of minutes to create the database volumes on your machine.
+It typically takes a couple of minutes to create the database volumes on your machine.  Here are some ways that you can check on the status of your cluster and the pods that go into it.
 
 `kubectl get iriscluster`
 ```
@@ -138,6 +142,7 @@ iris-demo-basic   1      0                    Running   23m
 ```
 
 You can check in on the status of each node in your cluster via
+
 `kubectl get pods`
 ```
 NAME                                          READY   STATUS    RESTARTS   AGE
@@ -184,10 +189,36 @@ Now that we have an ingress, we should be able to route traffic from your local 
 
 http://localhost:8081/csp/sys/UtilHome.csp
 
+## Cleanup
 
-# Password hash
+When you're done, here's how to clean up.
 
-TBD
+### Cleaning up an irisCluster
 
----
+You can use the command `kubectl delete irisCluster <CLUSTER NAME>` to remove the pods, statefulsets, services, etc associated with the IRIS instance.  This intentionally leaves behind the PersistentVolumes (disks) where your data is stored, in case you need it later.
 
+`kubectl get persistentvolumeclaim` will show you all of the claims to disks configured in your cluster and `kubectl delete persistentvolumeclaim <CLAIM NAME>` can be used to delete the claim.  
+
+Once the claims are deleted you can delete the actual underlying data by removing the persistentVolumes.  `kubectl get persistentVolume` shows the volumes out there and `kubectl delete persistentVolume` can be used to delete them.
+
+### Stopping Kubernetes
+
+We're using `k3d` to manage the Kubernetes cluster(s).
+
+You can get the list of clusters you have on your machine via: `k3d cluster list`
+```
+NAME          SERVERS   AGENTS   LOADBALANCER
+k3s-default   1/1       2/2      true
+```
+
+You can *stop* and *delete* a cluster.  Stopping a cluster, as you'd guess from the name, will stop the docker containers that make up the cluster, but leave their configuration and data.  Deleting a cluster will stop the cluster and it will permanently remove its configuration. 
+
+`k3d cluster stop k3s-default` will stop the cluster named k3s-default
+
+
+## TODO
+
+* Additional content on passwordhash and how/where we recomend setting the system password
+* Descriptions of all the resources created by IKO and how they fit together.  
+* Images that describe the cluster and ingress configuration.
+* Further information on Ingress, IAM, and the web gateway as they overlap quite a bit.
