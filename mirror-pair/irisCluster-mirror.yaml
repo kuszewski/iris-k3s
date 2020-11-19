@@ -1,0 +1,50 @@
+apiVersion: intersystems.com/v1alpha1
+kind: IrisCluster
+metadata:
+  name: iris-demo-mirror
+spec:
+  licenseKeySecret:
+    name: iris-key-secret
+  configSource:
+    name: iris-cpf
+  topology:
+    arbiter:
+      image: containers.intersystems.com/intersystems/arbiter:2020.4.0.524.0
+      podTemplate:
+        spec:
+          imagePullSecrets:
+            - name: intersystems-container-registry-secret
+    data:
+      shards: 1
+      mirrored: true
+      image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
+      podTemplate:
+        spec:
+          imagePullSecrets:
+            - name: intersystems-container-registry-secret
+      updateStrategy:
+        type: RollingUpdate
+      storage:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: iris-ssd-storageclass
+    #compute:
+    #  image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
+    #  replicas: 0
+    #  podTemplate:
+    #    spec:
+    #      imagePullSecrets:
+    #        - name: intersystems-container-registry-secret
+    #  storage:
+    #    accessModes:
+    #      - ReadWriteOnce
+    #    resources:
+    #      requests:
+    #        storage: 2Gi
+    #    storageClassName: iris-ssd-storageclass
+  serviceTemplate:
+    spec:
+      type: ClusterIP
