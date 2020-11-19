@@ -14,7 +14,7 @@ spec:
       podTemplate:
         spec:
           imagePullSecrets:
-            - name: dockerhub-secret
+            - name: intersystems-container-registry-secret
     data:
       shards: 1
       mirrored: false
@@ -22,7 +22,7 @@ spec:
       podTemplate:
         spec:
           imagePullSecrets:
-            - name: dockerhub-secret
+            - name: intersystems-container-registry-secret
       updateStrategy:
         type: RollingUpdate
       storage:
@@ -38,7 +38,7 @@ spec:
       podTemplate:
         spec:
           imagePullSecrets:
-            - name: dockerhub-secret
+            - name: intersystems-container-registry-secret
       storage:
         accessModes:
           - ReadWriteOnce

@@ -4,10 +4,11 @@ If you want to gain experience with IRIS in Kubernetes, this is for you.  This d
  
 1. Installation of a micro kubernetes server designed for desktop development and edge computing needs.
 2. Installation of IKO
-3. Creation of sample IRIS clusters using IKO
+3. Prepare to create an IRIS cluster
+4. Creation of sample IRIS clusters using IKO
 
 
-## Installation of k3s and k3d
+## Part 1. Installation of k3s and k3d
 
 k3s is a lightweight Kubernetes distribution.  It's full-featured and 100% compliant with the Kubernetes standards.  You can read more about it at https://k3s.io/
 
@@ -31,15 +32,13 @@ The full instlation instructions are on https://k3d.io/#installation
 
 ### Create a Kubernetes cluster
 
-# Notes on k3s/k3d
-
 Now that you have k3d installed, you can create a kubernetes cluster via the following command:
 
 `k3d cluster create --api-port 6550 -p "8081:80@loadbalancer" --agents 2`
 
 This creates a kubernetes cluster and sets up the networking in docker where any ingress you set up on port 80 in the kubernetes cluster will be available in port 8081 on localhost.  This is incredibly convienient when working on your laptop because you can set up ingress in the normal Kubernetes manner and access it locally without hard-coding IP addresses, editing hosts files, or usiug public cloud load balancers.  We'll demonstrate this once we have an IRIS cluster installed.
 
-## Install InterSystems Kubernetes Operator
+## Part 2. Install InterSystems Kubernetes Operator
 
 Now that we have a kubernetes cluster, let's install IKO!
 
@@ -56,11 +55,18 @@ Kubernetes has a built-in way of storing secret information.  In this step, we'l
 
 Log into https://containers.intersystems.com.  That will show you your access token.  Then go to the shell and run the following:
 
-`kubectl create secret docker-registry intersystems-continer-secret --docker-server=https://containers.intersystems.com --docker-username=<YOUR USERNAME> --docker-password='<YOUR TOKEN>'`
+`kubectl create secret docker-registry intersystems-container-registry-secret --docker-server=https://containers.intersystems.com --docker-username=<YOUR USERNAME> --docker-password='<YOUR TOKEN>'`
 
 ### Download IKO
 
-Download the latest IKO from the WRC and uncompress it.  Replace the `values.yaml` file in the `chart` directory with the one in this directory.
+At present we need to download a tarball that has configurations and details for Helm, the Kubernetes package manager that helps us in deploying our Operator.
+In the WRC portal, Select
+`Actions -> Software Distribution -> Components`
+In the Name searchbox type `kubernetes` and select the latest.  
+
+This is a compressed file.  Uncompress it into this directory.
+
+Replace the `values.yaml` file in the `chart/iris-operator` directory with the one in this directory.
 
 ### Install IKO using helm
 
@@ -88,7 +94,7 @@ If you want more detail on it's status, you can use `kubectl describe` like this
 
 `kubectl describe pod intersystems-iris-operator`
 
-## Prepare to Create an IRIS cluster in Kubernetes
+## Part 3. Prepare to Create an IRIS cluster in Kubernetes
 
 We now have a Kubernetes cluster running with IKO installed, let's create an IRIS instance.  We'll need to do some one-time setup first.
 
@@ -115,7 +121,7 @@ Kubernetes allows for working with many different storage subsystems through the
 In the IKO samples directory, we have several other example storageClass (sc) files available for public clouds.  You can read more about storage classes here: https://kubernetes.io/docs/concepts/storage/storage-classes/
 
 
-## Create your first IRIS cluster
+## Part 4. Create your first IRIS cluster
 
 Let's start with a very simple, one node, IRIS instance.  If you look at `irisCluster-basic.yaml`, it creates an IRIS instance with just one data node and with the default system password.  The full instructions that describe this yaml file and how to change the password are included in https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=AIKO
 
@@ -143,7 +149,7 @@ Here we see two pods running.  The first is the worker engine for IKO that is re
 
 Kubectl has two commands that are helpful for checking in on your Kubernetes infrastructure - `kubectl describe` and `kubectl logs`
 
-`kubectl describe` can be used to get detailed information about any Kubernetes resource.  Along with basic information like what kind of object it is, at the bottom of the output you'll also see a list of events that have happened.  This is especially useful when you want to see if downloading the container image was successful or you want to check in on the status of creating a disk volume.  You can try this with `kubectl describe irisCkluster iris-demo-basic`
+`kubectl describe` can be used to get detailed information about any Kubernetes resource.  Along with basic information like what kind of object it is, at the bottom of the output you'll also see a list of events that have happened.  This is especially useful when you want to see if downloading the container image was successful or you want to check in on the status of creating a disk volume.  You can try this with `kubectl describe irisCluster iris-demo-basic`
 
 `kubectl logs` is used to get the logs for any pod.  For example `kubectl logs iris-demo-basic-data-0` will show you the IRIS logs for our basic demo cluster.
 
