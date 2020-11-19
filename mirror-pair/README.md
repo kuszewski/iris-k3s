@@ -1,6 +1,6 @@
 # IRIS Kubernetes for Desktop - Mirror Pair
 
-If you have alredy run the first iris-basic (sigle instance) on the main landing page of this repository, then you have IKO already running and you should be able to run this mirror-pair example. 
+If you have alredy run the first iris-basic (sigle instance) on the main landing page of this repository, then you have IKO already running and you should be able to run this mirror-pair example with Arbiter. 
 
 This example leverages the sharding API. 
 By default it will create a shard & mirrored database called IRISCLUSTER.
@@ -19,7 +19,9 @@ Please review the *irisCluster-mirror.yaml* irisCluster topology declaration and
 ---
 
 # TO DO
-- provide a couple of examples of Ingress Controllers picking up the Active Primary
+- provide a couple of examples of Ingress Controllers picking up the mirror Primary
 - do we want to provide all the files here again or are we working on the assumption that people will start with the main root page and install K8s and IKO?
-
+    - We could probably remove the values.yaml, storageClass-k3s.yaml and the create-k8s-registry-secrets.sh then...
+- ...
+- 
 
