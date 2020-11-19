@@ -12,6 +12,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: iris-demo-basic
+            name: iris-demo-mirror
             port:
               number: 52773

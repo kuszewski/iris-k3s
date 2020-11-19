@@ -15,3 +15,11 @@ This is a valid use case for customers that know that they will be growing their
 If any of the above are missing please refer to the previous/root page of this repository.
 
 Please review the *irisCluster-mirror.yaml* irisCluster topology declaration and try to spin it up.
+
+---
+
+# TO DO
+- provide a couple of examples of Ingress Controllers picking up the Active Primary
+- do we want to provide all the files here again or are we working on the assumption that people will start with the main root page and install K8s and IKO?
+
+
