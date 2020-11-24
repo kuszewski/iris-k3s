@@ -20,8 +20,12 @@ Before you install k3d, you'll need to install docker and the kubernetes control
 
 Kubernetes, like many systems, is command-line oriented, so you'll want to have your shell handy.
 
-1. Install Docker. If you don't have it already, you can get it from here  https://www.docker.com/products/docker-desktop
-2. Install kubectl. If you haven't used kubernetes yet, you probably don't have kubectl installed on your machine.  Follow the full instructions here:  https://kubernetes.io/docs/tasks/tools/install-kubectl/
+1. Install Docker. If you don't have it already, 
+ - you can get it from here  https://www.docker.com/products/docker-desktop
+ - or on MAC `brew cask install docker`  
+2. Install kubectl. If you haven't used kubernetes yet, you probably don't have kubectl installed on your machine.
+ - Follow the full instructions here:  https://kubernetes.io/docs/tasks/tools/install-kubectl/
+ - or on MAC `brew install kubernetes-cli`  
 
 ### Installing k3d
 
