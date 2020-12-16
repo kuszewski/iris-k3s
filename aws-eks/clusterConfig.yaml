@@ -20,6 +20,7 @@ nodeGroups:
         ebs: true
         autoScaler: true
     preBootstrapCommands:
-    - sudo sysctl -w vm.nr_hugepages=2048
+      - echo never > /sys/kernel/mm/transparent_hugepage/enabled
+      - sudo sysctl -w vm.nr_hugepages=2048
 
 availabilityZones: ['us-west-2a', 'us-west-2b', 'us-west-2c']
