@@ -1,8 +1,9 @@
 apiVersion: intersystems.com/v1alpha1
 kind: IrisCluster
 metadata:
-  name: iris-demo-mirror
+  name: iris-hugepages
 spec:
+  passwordHash: 4612128bf59d68492310e1c94b90860e4d26fd93,rq2tkvjg
   licenseKeySecret:
     name: iris-key-secret
   configSource:
@@ -10,6 +11,8 @@ spec:
   topology:
     arbiter:
       image: containers.intersystems.com/intersystems/arbiter:2020.4.0.524.0
+      preferredZones:
+        - us-west-2b
       podTemplate:
         spec:
           imagePullSecrets:
@@ -18,16 +21,19 @@ spec:
       shards: 1
       mirrored: true
       image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
+      preferredZones:
+        - us-west-2a
+        - us-west-2b
       podTemplate:
         spec:
           imagePullSecrets:
             - name: intersystems-container-registry-secret
           resources:
             limits:
-              hugepages-2Mi: 1Mi
-              memory: 1Mi
+              hugepages-2Mi: 2048Mi
+              memory: 2048Mi
             requests:
-              memory: 1Mi
+              memory: 2048Mi
       updateStrategy:
         type: RollingUpdate
       storage:
@@ -37,20 +43,23 @@ spec:
           requests:
             storage: 2Gi
         storageClassName: iris-ssd-storageclass
-    #compute:
-    #  image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
-    #  replicas: 0
-    #  podTemplate:
-    #    spec:
-    #      imagePullSecrets:
-    #        - name: intersystems-container-registry-secret
-    #  storage:
-    #    accessModes:
-    #      - ReadWriteOnce
-    #    resources:
-    #      requests:
-    #        storage: 2Gi
-    #    storageClassName: iris-ssd-storageclass
+    compute:
+      image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
+      replicas: 0
+      preferredZones:
+        - us-west-2b
+        - us-west-2c
+      podTemplate:
+        spec:
+          imagePullSecrets:
+            - name: intersystems-container-registry-secret
+      storage:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: iris-ssd-storageclass
   serviceTemplate:
     spec:
-      type: ClusterIP
+      type: LoadBalancer
