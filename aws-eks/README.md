@@ -15,6 +15,14 @@ IRIS performs better when hugepages are used.  In order to make use of them, you
 1. Allocate some number of hugepages on the Kubernetes Node when it starts up.  That is done by adding a `preBootstrapCommand` in the `nodeGroup` section of the cluster yaml.  These are shell commands that get run when the VM is started.  In the `clusterConfig.yaml` example included in this directory, I am simply allocating 2048 hugepages.  You'll have to tune this to meet your needs.  Also, you might want multiple nodegroups, some with hugepages and some without to match your workload needs.
 2. The pod will need to request some number of hugepages.  This can be done in any Kubernetes pod, but the `irisCluster-hugepages.yaml` file demonstrates how to do it in an irisCluster.
 
+### Creating the cluster
+
+`eksctl` allows you to create your cluster with everything on the command line or through a yaml file.  I prefer the yaml file as it's easier to keep track of exactly what you did when you created the cluster (as evidenced by the clusterConfig.yaml I included here).  You can create a cluster with
+
+```
+eksctl create cluster -f clusterConfig.yaml
+```
+
 ## StorageClass
 
 We have an example StorageClass that works well with AWS EKS.
