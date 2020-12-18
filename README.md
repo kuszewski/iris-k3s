@@ -21,18 +21,20 @@ Before you install k3d, you'll need to install docker and the kubernetes control
 Kubernetes, like many systems, is command-line oriented, so you'll want to have your shell handy.
 
 1. Install Docker. If you don't have it already, 
- - you can get it from here  https://www.docker.com/products/docker-desktop
- - or on MAC `brew cask install docker`  
+ - MacOS: `brew cask install docker`
+ - Windows:  https://hub.docker.com/editions/community/docker-ce-desktop-windows/
+ - Ubuntu: https://docs.docker.com/engine/install/ubuntu/  
 2. Install kubectl. If you haven't used kubernetes yet, you probably don't have kubectl installed on your machine.
- - Follow the full instructions here:  https://kubernetes.io/docs/tasks/tools/install-kubectl/
- - or on MAC `brew install kubernetes-cli`  
+ - MacOS: `brew install kubernetes-cli`  
+ - Windows and Linux: Follow the full instructions here:  https://kubernetes.io/docs/tasks/tools/install-kubectl/
 
 ### Installing k3d
 
 The full instlation instructions are on https://k3d.io/#installation
 
 * Mac OS: use brew to install via `brew install k3d`
-* Windows: download the installer from https://github.com/rancher/k3d/releases
+* Windows: download the executable from https://github.com/rancher/k3d/releases and add it to your path
+* Ubuntu: `wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash`
 
 ### Create a Kubernetes cluster
 
@@ -50,8 +52,9 @@ Now that we have a kubernetes cluster, let's install IKO!
 
 Helm can be thought of as a package manager for Kubernetes.  You can read more about how to install it at https://helm.sh/docs/intro/install/
 
-* On MacOs: Use brew, `brew install helm`
-* On Windows: Use chocolatey, `choco install kubernetes-helm`
+* MacOs: `brew install helm`
+* Windows: `choco install kubernetes-helm`
+* Ubuntu: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
 
 ### Create kubernetes secret for access to containers.intersystems.com
 
@@ -226,3 +229,4 @@ You can *stop* and *delete* a cluster.  Stopping a cluster, as you'd guess from 
 * Descriptions of all the resources created by IKO and how they fit together.  
 * Images that describe the cluster and ingress configuration.
 * Further information on Ingress, IAM, and the web gateway as they overlap quite a bit.
+* Private Docker registry
