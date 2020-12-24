@@ -1,0 +1,101 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cr-node-setup
+  labels:
+    k8s-app: cr-node-setup
+rules:
+  - apiGroups: [""]
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - patch
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cr-node-setup
+  labels:
+    k8s-app: cr-node-setup
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cr-node-setup
+  labels:
+    k8s-app: cr-node-setup
+subjects:
+  - kind: ServiceAccount
+    name: cr-node-setup
+roleRef:
+  kind: Role
+  name: cr-node-setup
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: daemonset-sh
+  labels:
+    k8s-app: cr-node-setup
+data:
+  daemonset.sh: |
+    #!/bin/sh
+
+    # Download kubectl
+    echo "Downloading kubectl"
+    wget -q https://storage.googleapis.com/kubernetes-release/release/v1.20.1/bin/linux/amd64/kubectl
+    chmod +x kubectl 
+
+    # Configuration
+    frequency=3600
+
+    while [ 1 ]; do
+        echo "Creating hosts.new"
+        grep -v container-registry /host/etc/hosts > /host/etc/hosts.new
+        ./kubectl get svc container-registry -n container-registry -o jsonpath="{.spec.clusterIP}" | awk '{print $1 "\tcontainer-registry.local"}' >> /host/etc/hosts.new
+
+        echo "Replacing hosts file"
+        cat /host/etc/hosts.new > /host/etc/hosts
+
+        echo "Complete"
+        sleep $frequency
+    done
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cr-node-setup
+  labels:
+    k8s-app: cr-node-setup
+spec:
+  selector:
+    matchLabels:
+      name: cr-node-setup
+  template:
+    metadata:
+      labels:
+        name: cr-node-setup
+    spec:
+      serviceAccountName: cr-node-setup
+      containers:
+      - name: cr-node-setup-register
+        image: alpine
+        command: [ 'sh' ]
+        args: [ '-c', '/daemonset/daemonset.sh' ]
+        volumeMounts:
+        - name: etc
+          mountPath: /host/etc/
+        - name: daemonset-sh
+          mountPath: /daemonset/
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - name: etc
+        hostPath:
+          path: /etc/
+      - name: daemonset-sh
+        configMap:
+          name: daemonset-sh
+          defaultMode: 0744

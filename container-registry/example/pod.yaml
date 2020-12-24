@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-world-example
+spec:
+  containers:
+    - name: hello-world-example
+      image: container-registry.local:5000/hello-world-example:latest

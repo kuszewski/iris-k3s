@@ -40,9 +40,9 @@ The full instlation instructions are on https://k3d.io/#installation
 
 Now that you have k3d installed, you can create a kubernetes cluster via the following command:
 
-`k3d cluster create --api-port 6550 -p "8081:80@loadbalancer" --agents 2`
+`k3d cluster create --api-port 6550 -p "30000-32767:30000-32767@server[0]" -p "8080:80@loadbalancer"  --agents 2 --volume "$(pwd)/container-registry/registry/":/registry --k3s-server-arg "--private-registry=/registry/certs/registries.yaml" --k3s-agent-arg "--private-registry=/registry/certs/registries.yaml"`
 
-This creates a kubernetes cluster and sets up the networking in docker where any ingress you set up on port 80 in the kubernetes cluster will be available in port 8081 on localhost.  This is incredibly convienient when working on your laptop because you can set up ingress in the normal Kubernetes manner and access it locally without hard-coding IP addresses, editing hosts files, or usiug public cloud load balancers.  We'll demonstrate this once we have an IRIS cluster installed.
+This creates a kubernetes cluster and sets up the networking in docker where any service set up with type NodePort in the kubernetes cluster will be available in on localhost.  If you want to use a load balancer and Ingress, you can access port 80 in the cluster with localhost port 8080. This is incredibly convienient when working on your laptop because you can set up ingress in the normal Kubernetes manner and access it locally without hard-coding IP addresses, editing hosts files, or usiug public cloud load balancers.  We'll demonstrate this once we have an IRIS cluster installed.
 
 ## Part 2. Install InterSystems Kubernetes Operator
 

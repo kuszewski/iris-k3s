@@ -48,4 +48,4 @@ spec:
         storageClassName: iris-ssd-storageclass
   serviceTemplate:
     spec:
-      type: ClusterIP
+      type: NodePort

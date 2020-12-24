@@ -1,0 +1,13 @@
+mirrors:
+  "container-registry.local:5000":
+    endpoint:
+      - "https://container-registry.local:5000"
+configs:
+  "container-registry.local:5000":
+    auth:
+      username: iris
+      password: iris
+    tls:
+      cert_file: /registry/certs/tls.crt
+      key_file:  /registry/certs/tls.key
+      insecure_skip_verify: true
