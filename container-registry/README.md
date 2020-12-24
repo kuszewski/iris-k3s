@@ -76,7 +76,7 @@ hello world
 
 You can delete the example pod via `kubectl delete pod hello-world-example`
 
-## Explanation
+## Explanation (Optional)
 
 There are really three areas that need some explanation:
 1. Securing up the container registry
