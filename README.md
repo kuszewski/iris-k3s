@@ -64,6 +64,12 @@ Log into https://containers.intersystems.com.  That will show you your access to
 
 `kubectl create secret docker-registry intersystems-container-registry-secret --docker-server=https://containers.intersystems.com --docker-username=<YOUR USERNAME> --docker-password='<YOUR TOKEN>'`
 
+### Clone this repo
+
+`git clone https://github.com/kuszewski/iris-k3s.git`
+
+We will have to move between this repo (which we will call your `iris-k3s` directory) and your iris_operator directory (which we'll call your `IKO` directory) in the next few steps.
+
 ### Download IKO
 
 At present we need to download a tarball that has configurations and details for Helm, the Kubernetes package manager that helps us in deploying our Operator.
@@ -71,14 +77,17 @@ In the WRC portal, Select
 `Actions -> Software Distribution -> Components`
 In the Name searchbox type `kubernetes` and select the latest.  
 
-This is a compressed file.  Uncompress it into this directory.
+This is a compressed file.  Uncompress it into this directory.  We'll call this your IKO directory in instructions below
 
-Replace the `values.yaml` file in the `chart/iris-operator` directory with the one in this directory.
+Replace the `values.yaml` file in the `<IKO DIRECTORY>/chart/iris-operator` directory with the one in your `iris-k3s` directory.
+
+`cp <IRIS-K3s>/values.yaml <IKO DIRECTORY>/chart/iris-operator`
 
 ### Install IKO using helm
 
 Finally, we can install IKO on our Kubernetes cluster.  From the IKO directory, run:
 
+`cd <IKO DIRECTORY>`
 `helm install intersystems chart/iris-operator`
 
 Once this has completed, you can check on the status of kubernetes operator with the following command:
@@ -111,12 +120,13 @@ IRIS, as you know, requires a license key.  Get an `iris.key` file that is appro
 
 `kubectl create secret generic iris-key-secret --from-file=iris.key`
 
-This will add the iris.key file as a secret in Kubernetes.  This will be pulled into the IRIS pods by IKO.
+This will add the `iris.key` file as a secret in Kubernetes.  Your key file *must* be named iris.key.  This will be pulled into the IRIS pods by IKO.
 
 ### Create a Configuration Parameter File ConfigMap
 
-When using containers, IRIS is configured via the configuration parameter files.  We've provided two in the IKO Samples directory that are good place to start.  Let's load them into Kubernetes.
+When using containers, IRIS is configured via the configuration parameter files.  We've provided two in this repo that are a good place to start.  Let's load them into Kubernetes.
 
+`cd <IRIS K3S>`
 `kubectl create cm iris-cpf --from-file data.cpf --from-file compute.cpf`
 
 To learn more about CPF, check out the IRIS documentation at: https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RACS_CPF
@@ -181,20 +191,19 @@ We use the concept of a service to organize network traffic within the Kubernete
 
 `kubectl get services`
 ```
-NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)              AGE
-kubernetes                   ClusterIP   10.43.0.1       <none>        443/TCP              9h
-intersystems-iris-operator   ClusterIP   10.43.13.131    <none>        443/TCP              8h
-iris-svc                     ClusterIP   None            <none>        <none>               8h
-iris-demo-basic              ClusterIP   10.43.163.185   <none>        1972/TCP,52773/TCP   4h7m
+NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                          AGE
+kubernetes                   ClusterIP   10.43.0.1       <none>        443/TCP                          7d1h
+intersystems-iris-operator   ClusterIP   10.43.138.247   <none>        443/TCP                          7d1h
+iris-svc                     ClusterIP   None            <none>        <none>                           7d1h
+iris-demo-basic              NodePort    10.43.185.53    <none>        1972:31785/TCP,52773:31457/TCP   7d1h
 ```
 
-The iris-demo-basic service provides a VIP within the cluster for the data nodes in our irisCluster.  Now we need to provide a way to route traffic to the service from outside the Kubernetes cluster.  This is done via an ingress.
+The iris-demo-basic service provides a VIP within the cluster for the data nodes in our irisCluster.  When we created our kubernetes cluster (via that k3d cluster create command), we told it to publish all of the internal nodePort services on your local machine. Get the port number from the iris-demo-basic service.
 
-`kubectl apply -f ingress-basic.yaml`
+http://localhost:PORT/csp/sys/UtilHome.csp
 
-Now that we have an ingress, we should be able to route traffic from your local browser to IRIS:
-
-http://localhost:8081/csp/sys/UtilHome.csp
+In the example above, the external port for the management console is 31457, so I use:
+http://localhost:31457/csp/sys/UtilHome.csp
 
 ## Cleanup
 
@@ -222,6 +231,18 @@ You can *stop* and *delete* a cluster.  Stopping a cluster, as you'd guess from 
 
 `k3d cluster stop k3s-default` will stop the cluster named k3s-default
 
+And when you want to come back to Kubernetes, you can start you cluster with `k3d cluster start`
+
+
+# Further Reading
+
+You've now set up your cluster, added IKO, and created your first IRIS Cluster.
+
+Check out the [container-registry] directory for directions on how to set up your own docker container registry.  This is really useful if you want to build a container that builds from the IRIS container and adds your own code to it.  
+
+Check out the [mirrir-pair] directory for information on how to set up a mirror pair with IKO.
+
+The AWS-EKS directory includes notes on using IKO with AWS' managed Kubernetes service (EKS), including how to set up and use hugepages.
 
 ## TODO
 
@@ -229,4 +250,3 @@ You can *stop* and *delete* a cluster.  Stopping a cluster, as you'd guess from 
 * Descriptions of all the resources created by IKO and how they fit together.  
 * Images that describe the cluster and ingress configuration.
 * Further information on Ingress, IAM, and the web gateway as they overlap quite a bit.
-* Private Docker registry

@@ -12,7 +12,7 @@ spec:
     arbiter:
       image: containers.intersystems.com/intersystems/arbiter:2020.4.0.524.0
       preferredZones:
-        - us-west-2b
+        - us-west-2a
       podTemplate:
         spec:
           imagePullSecrets:
@@ -23,7 +23,7 @@ spec:
       image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
       preferredZones:
         - us-west-2a
-        - us-west-2b
+        - us-west-2c
       podTemplate:
         spec:
           imagePullSecrets:
@@ -47,7 +47,7 @@ spec:
       image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
       replicas: 0
       preferredZones:
-        - us-west-2b
+        - us-west-2a
         - us-west-2c
       podTemplate:
         spec:

@@ -22,12 +22,6 @@ spec:
         spec:
           imagePullSecrets:
             - name: intersystems-container-registry-secret
-          resources:
-            limits:
-              hugepages-2Mi: 1Mi
-              memory: 1Mi
-            requests:
-              memory: 1Mi
       updateStrategy:
         type: RollingUpdate
       storage:
