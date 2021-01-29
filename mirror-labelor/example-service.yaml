@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  finalizers:
+  - service.kubernetes.io/load-balancer-cleanup
+  name: iris-demo-mirrored-primary
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: superserver
+    port: 1972
+    protocol: TCP
+    targetPort: superserver
+  - name: webserver
+    port: 52773
+    protocol: TCP
+    targetPort: webserver
+  selector:
+    intersystems.com/mirrorRole: primary
+    intersystems.com/name: iris-demo-mirrored
+  sessionAffinity: None
+  type: LoadBalancer
