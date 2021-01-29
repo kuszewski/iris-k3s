@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iris-mirror-labelor
+  name: iris-mirror-labeler
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: iris-mirror-labelor
+      app: iris-mirror-labeler
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -16,11 +16,11 @@ spec:
   template:
     metadata:
       labels:
-        app: iris-mirror-labelor
+        app: iris-mirror-labeler
     spec:
-      serviceAccountName: iris-mirror-labelor
+      serviceAccountName: iris-mirror-labeler
       containers:
       - image: <YOUR IMAGE HERE>
-        name: mirror-labelor
+        name: mirror-labeler
       restartPolicy: Always
       schedulerName: default-scheduler
