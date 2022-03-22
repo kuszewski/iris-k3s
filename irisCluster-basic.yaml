@@ -1,51 +1,40 @@
 apiVersion: intersystems.com/v1alpha1
 kind: IrisCluster
 metadata:
-  name: iris-demo-basic
+  name: sample
 spec:
-  passwordHash: 4612128bf59d68492310e1c94b90860e4d26fd93,rq2tkvjg
   licenseKeySecret:
     name: iris-key-secret
   configSource:
     name: iris-cpf
-  topology:
-    arbiter:
-      image: containers.intersystems.com/intersystems/arbiter:2020.4.0.524.0
-      podTemplate:
-        spec:
-          imagePullSecrets:
-            - name: intersystems-container-registry-secret
-    data:
-      shards: 1
-      mirrored: false
-      image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
-      podTemplate:
-        spec:
-          imagePullSecrets:
-            - name: intersystems-container-registry-secret
-      updateStrategy:
-        type: RollingUpdate
-      storage:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 2Gi
-        storageClassName: iris-ssd-storageclass
-    compute:
-      image: containers.intersystems.com/intersystems/iris:2020.4.0.524.0
-      replicas: 0
-      podTemplate:
-        spec:
-          imagePullSecrets:
-            - name: intersystems-container-registry-secret
-      storage:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 2Gi
-        storageClassName: iris-ssd-storageclass
+
+  storageClassName: iris-ssd-storageclass
+   
+## create external IP address(es)for the cluster 
+## ("type: LoadBalancer" and "externalTrafficPolicy: Local" are required)
   serviceTemplate:
     spec:
       type: NodePort
+      ports:
+      - name: MgmtPortal
+        nodePort: 30080
+        port: 52773
+#      type: LoadBalancer 
+#      externalTrafficPolicy: Local
+
+## topology: defines node types to be deployed; only data: is required
+
+  topology:
+    data:
+      image: containers.intersystems.com/intersystems/iris:2022.1.0.140.0
+      shards: 1
+      mirrored: false
+## override default size and other attributes of predefined storage 
+## volumes for data nodes (additional volume names: storageWIJ, 
+## storageJournal1, storageJournal2); can also be included in 
+## "compute:" definition
+#      storageDB:
+#        resources:
+#          requests:
+#            storage: 10Gi
+#        storageClassName: my-storage-class

@@ -8,7 +8,7 @@ If you want to gain experience with IRIS in Kubernetes, this is for you.  This d
 4. Creation of sample IRIS clusters using IKO
 
 
-## Part 1. Installation of k3s and k3d
+## Part 1. Installation of k3d & create a Kubernetes cluster
 
 k3s is a lightweight Kubernetes distribution.  It's full-featured and 100% compliant with the Kubernetes standards.  You can read more about it at https://k3s.io/
 
@@ -40,13 +40,17 @@ The full instlation instructions are on https://k3d.io/#installation
 
 Now that you have k3d installed, you can create a kubernetes cluster via the following command:
 
-`k3d cluster create --api-port 6550 -p "30000-32767:30000-32767@server[0]" -p "8080:80@loadbalancer"  --agents 2 --volume "$(pwd)/container-registry/registry/":/registry --k3s-server-arg "--private-registry=/registry/certs/registries.yaml" --k3s-agent-arg "--private-registry=/registry/certs/registries.yaml"`
+1. `git clone https://github.com/kuszewski/iris-k3s.git`
+2. Edit the k3d-cluster.yaml file to include your InterSystems Container Registry credentials
+3. Create your cluster: `k3d cluster create -c k3d-cluster.yaml`
 
 This creates a kubernetes cluster and sets up the networking in docker where any service set up with type NodePort in the kubernetes cluster will be available in on localhost.  If you want to use a load balancer and Ingress, you can access port 80 in the cluster with localhost port 8080. This is incredibly convienient when working on your laptop because you can set up ingress in the normal Kubernetes manner and access it locally without hard-coding IP addresses, editing hosts files, or usiug public cloud load balancers.  We'll demonstrate this once we have an IRIS cluster installed.
 
+We also make a number of NodePorts available (30000 through 31000) in case you want to access a service directly.
+
 ## Part 2. Install InterSystems Kubernetes Operator
 
-Now that we have a kubernetes cluster, let's install IKO!
+Now that we have a kubernetes cluster, let's install IKO.
 
 ### Install Helm
 
@@ -55,18 +59,6 @@ Helm can be thought of as a package manager for Kubernetes.  You can read more a
 * MacOs: `brew install helm`
 * Windows: `choco install kubernetes-helm`
 * Ubuntu: https://helm.sh/docs/intro/install/#from-apt-debianubuntu
-
-### Create kubernetes secret for access to containers.intersystems.com
-
-Kubernetes has a built-in way of storing secret information.  In this step, we'll create a secret that that will allow Kubernetes to use containers on InterSystems's container registry.
-
-Log into https://containers.intersystems.com.  That will show you your access token.  Then go to the shell and run the following:
-
-`kubectl create secret docker-registry intersystems-container-registry-secret --docker-server=https://containers.intersystems.com --docker-username=<YOUR USERNAME> --docker-password='<YOUR TOKEN>'`
-
-### Clone this repo
-
-`git clone https://github.com/kuszewski/iris-k3s.git`
 
 We will have to move between this repo (which we will call your `iris-k3s` directory) and your iris_operator directory (which we'll call your `IKO` directory) in the next few steps.
 
@@ -78,10 +70,6 @@ In the WRC portal, Select
 In the Name searchbox type `kubernetes` and select the latest.  
 
 This is a compressed file.  Uncompress it into this directory.  We'll call this your IKO directory in instructions below
-
-Replace the `values.yaml` file in the `<IKO DIRECTORY>/chart/iris-operator` directory with the one in your `iris-k3s` directory.
-
-`cp <IRIS-K3s>/values.yaml <IKO DIRECTORY>/chart/iris-operator`
 
 ### Install IKO using helm
 
@@ -106,6 +94,8 @@ NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
 intersystems-iris-operator   1/1     1            1           42s
 ```
 
+If you see `ImagePullBackOff` as the status, it means that it cannot connect to the InterSystems Container Registry.  Try switching off the VPN or to a public network and double check your ICR credentials.
+
 If you want more detail on it's status, you can use `kubectl describe` like this:
 
 `kubectl describe pod intersystems-iris-operator`
@@ -124,10 +114,10 @@ This will add the `iris.key` file as a secret in Kubernetes.  Your key file *mus
 
 ### Create a Configuration Parameter File ConfigMap
 
-When using containers, IRIS is configured via the configuration parameter files.  We've provided two in this repo that are a good place to start.  Let's load them into Kubernetes.
+When using containers, IRIS is configured via the configuration parameter files.  We've provided a basic CPF in this repo that are a good place to start.  Let's load it into Kubernetes.
 
 `cd <IRIS K3S>`
-`kubectl create cm iris-cpf --from-file data.cpf --from-file compute.cpf`
+`kubectl create cm iris-cpf --from-file iris.cpf`
 
 To learn more about CPF, check out the IRIS documentation at: https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=RACS_CPF
 
@@ -245,8 +235,5 @@ Check out the [mirrir-pair] directory for information on how to set up a mirror 
 The AWS-EKS directory includes notes on using IKO with AWS' managed Kubernetes service (EKS), including how to set up and use hugepages.
 
 ## TODO
-
-* Additional content on passwordhash and how/where we recomend setting the system password
-* Descriptions of all the resources created by IKO and how they fit together.  
 * Images that describe the cluster and ingress configuration.
 * Further information on Ingress, IAM, and the web gateway as they overlap quite a bit.
