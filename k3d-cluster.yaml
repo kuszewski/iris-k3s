@@ -1,0 +1,32 @@
+apiVersion: k3d.io/v1alpha4
+kind: Simple
+metadata:
+  name: myk8s
+servers: 1
+agents: 2
+kubeAPI: # same as `--api-port myhost.my.domain:6445` (where the name would resolve to 127.0.0.1)
+  hostPort: "6445" # where the Kubernetes API listening port will be mapped to on your host system
+ports:
+  - port: 8080:80 # same as `--port '8080:80@loadbalancer'`  TODO: Add some nodeports?
+    nodeFilters:
+      - loadbalancer
+  - port: 30000-31000:30000-31000 # Adding all of the nodeports causes a timeout.  Can I fix this?
+    nodeFilters:
+      - agent:0
+registries:
+  create: 
+    name: myregistry
+  config: |
+    mirrors:
+      containers.intersystems.com:
+        endpoint:
+          - https://containers.intersystems.com
+    configs:
+      containers.intersystems.com:
+        auth:
+          username: rkuszews
+          password: aEm9tZDU2w7QLKcIDQn8v2yYczBeZuDiMA7Xv4IV5Acb
+# TODO: Add nodeports
+# TODO: Figure out volumes - do I want anything special?
+# TODO: Figure out authentication to ICR
+# Network, subnet
