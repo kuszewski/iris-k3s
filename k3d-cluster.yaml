@@ -29,7 +29,3 @@ registries:
         auth:
           username: TBD
           password: TBD
-      arti.iscinternal.com:
-        auth:
-          username: rkuszews
-          password: AKCp8jQTfVKXmUui7SfXWptxYTodP1eSGxcbozr571dwrDm5Wn7xoRR2AvrEPRXZxQpzJapqu
