@@ -25,10 +25,19 @@ spec:
 ## topology: defines node types to be deployed; only data: is required
 
   topology:
+    arbiter:
+      image: containers.intersystems.com/intersystems/arbiter:2022.1.0.209.0
     data:
-      image: containers.intersystems.com/intersystems/iris:2022.1.0.140.0
+      image: containers.intersystems.com/intersystems/iris:2022.1.0.209.0
       shards: 1
       mirrored: false
+    compute:
+      image: containers.intersystems.com/intersystems/iris:2022.1.0.209.0
+      replicas: 1
+    webgateway:
+      image: containers.intersystems.com/intersystems/webgateway-nginx:2022.1.0.209.0
+      type: nginx
+      replicas: 1
 ## override default size and other attributes of predefined storage 
 ## volumes for data nodes (additional volume names: storageWIJ, 
 ## storageJournal1, storageJournal2); can also be included in 

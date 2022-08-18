@@ -21,12 +21,15 @@ registries:
       containers.intersystems.com:
         endpoint:
           - https://containers.intersystems.com
+      arti.iscinternal.com:
+        endpoint:
+          - https://arti.iscinternal.com
     configs:
       containers.intersystems.com:
         auth:
+          username: TBD
+          password: TBD
+      arti.iscinternal.com:
+        auth:
           username: rkuszews
-          password: aEm9tZDU2w7QLKcIDQn8v2yYczBeZuDiMA7Xv4IV5Acb
-# TODO: Add nodeports
-# TODO: Figure out volumes - do I want anything special?
-# TODO: Figure out authentication to ICR
-# Network, subnet
+          password: AKCp8jQTfVKXmUui7SfXWptxYTodP1eSGxcbozr571dwrDm5Wn7xoRR2AvrEPRXZxQpzJapqu
